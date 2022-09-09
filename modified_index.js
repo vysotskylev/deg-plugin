@@ -11390,7 +11390,7 @@ function _typeof2(t) {
                         vars: vars,
                     };
                     var element = document.createElement('a');
-                    element.setAttribute('href', 'data:application/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(info)));
+                    element.setAttribute('href', 'data:application/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(info, null, 2)));
                     element.setAttribute('download', "myvote.json");
 
                     element.style.display = 'none';
