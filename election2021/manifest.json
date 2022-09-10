@@ -1,24 +1,19 @@
 {
   "description": "Позволяет сохранить информацию о вашем голосе для последующей проверки правильности учёта голоса",
   "manifest_version": 2,
-  "name": "deg-plugin",
+  "name": "Сохрани свой голос",
   "version": "1.0",
   "author": "Lev Vysotsky",
   "homepage_url": "https://github.com/vysotskylev/deg-plugin",
 
   "content_scripts": [
     {
-     "matches": ["<all_urls>"],
+     "matches": ["*://degtest.llll.to/*"],
      "js": ["main.js"]
     }
   ],
 
   "web_accessible_resources": [
-    "modified_index.js",
-    "modified_index_old.js"
-  ],
-
-  "permissions": [
-      "<all_urls>"
+    "modified_index.js"
   ]
 }
