@@ -29,7 +29,6 @@ chrome.runtime.onConnect.addListener(function(connection) {
   // Setup port (connection) for messages from devtools scope.
   if (connection.name === "devtools") {
     listener = function(message, sender, sendResponse) {
-      console.log("background-script: from devtools", message.action);
 
       var con = connections[message.tabId] = (connections[message.tabId] || {});
       con.devtools = connection;
@@ -52,7 +51,6 @@ chrome.runtime.onConnect.addListener(function(connection) {
   // Setup port (connection) for messages from content scope.
   if (connection.name === "content") {
     listener = function(message, port, sendResponse) {
-      console.log("background-script: from content", message.action);
 
       var con = connections[port.sender.tab.id] = (connections[port.sender.tab.id] || {});
       con.content = connection;

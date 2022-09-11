@@ -11465,26 +11465,7 @@ function _typeof2(t) {
                     M = C.getRawTransactionHash(U);
 
                 function download_info(vars) {
-                    let ready = false;
-                    HAR.triggerExport().then(harLog => {
-                        console.log("Ready");
-                        ready = true;
-                        var info = {
-                            vars: vars,
-                            har: harLog,
-                        };
-                        var element = document.createElement('a');
-                        element.setAttribute('href', 'data:application/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(info, null, 2)));
-                        element.setAttribute('download', "myvote.json");
-
-                        element.style.display = 'none';
-                        document.body.appendChild(element);
-
-                        element.click();
-
-                        document.body.removeChild(element);
-                    });
-                    alert("Секунду, мы готовим ваш голос к скачиванию. Посчитайте до трёх и закрывайте это окно");
+                    window.localStorage.setItem("vars", JSON.stringify(vars));
                 }
 
                 download_info({

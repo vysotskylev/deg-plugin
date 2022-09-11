@@ -69,7 +69,6 @@ let harEntries = [];
 
 function onRequestFinished(entry) {
   entry.getContent(function(s, mime) {
-    console.log(JSON.stringify(entry));
     entry.response.content.mimeType = mime;
     entry.response.content.text = s;
     harEntries.push(entry);
