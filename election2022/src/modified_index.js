@@ -1,4 +1,83 @@
 console.log("Injected script loaded");
+(function(win) {
+    if (typeof win.HAR == "undefined") {
+      let id = 0;
+      let callsInProgress = new Map();
+      let onRequestFinishedListeners = new Set();
+
+      /**
+       * Implementation of HAR API. This object represents a wrapper
+       * around various DOM messages sent between the page and
+       * HARTriggerExport extension.
+       */
+      win.HAR = {
+        triggerExport: function(options) {
+          return new window.Promise(function(resolve) {
+            let actionId = ++id;
+            callsInProgress.set(actionId, resolve);
+
+            let event = new window.CustomEvent("HAR.triggerExport", {
+              detail: {
+                actionId: actionId,
+                options: options,
+              }
+            });
+
+            document.dispatchEvent(event);
+          });
+        },
+        addRequestListener: function(listener) {
+          onRequestFinishedListeners.add(listener);
+
+          // Register `onRequestFinished` listener on the backend.
+          // The backend listener is registered dynamically since
+          // it represents performance bottleneck.
+          // All HTTP details data related to the finished request
+          // needs to be fetched from the RDP server and passed to
+          // the listener.
+          // So, don't do it if the page doesn't need it.
+          if (onRequestFinishedListeners.size == 1) {
+            let event = new window.CustomEvent("HAR.addRequestListener");
+            document.dispatchEvent(event);
+          }
+        },
+        removeRequestListener: function(listener) {
+          onRequestFinishedListeners.delete(listener);
+
+          // Unregister backend listener if it isn't needed anymore.
+          if (onRequestFinishedListeners.size == 0) {
+            let event = new window.CustomEvent("HAR.removeRequestListener");
+            document.dispatchEvent(event);
+          }
+        },
+      };
+
+      /**
+       * Handle responses for `HAR.triggerExport` messages.
+       */
+      document.addEventListener("HAR.triggerExport-Response", function(event) {
+        let { actionId, harLog } = event.detail;
+        harLog = harLog ? JSON.parse(harLog) : null;
+        let resolve = callsInProgress.get(actionId);
+        if (resolve) {
+          callsInProgress.delete(actionId);
+          resolve(harLog);
+        } else {
+          console.log("HAR API: Unknown HAR response!", event);
+        }
+      });
+
+      /**
+       * Handle `HAR.onRequestFinished` send when HTTP request finished.
+       */
+      document.addEventListener("HAR.onRequestFinished", function(event) {
+        onRequestFinishedListeners.forEach(listener => {
+          listener(JSON.parse(event.detail.request));
+        })
+      });
+    }
+  })(window);
+
 self = window;
 /*! For license information please see index.js.LICENSE.txt */
 function _typeof2(t) {
@@ -11386,19 +11465,26 @@ function _typeof2(t) {
                     M = C.getRawTransactionHash(U);
 
                 function download_info(vars) {
-                    var info = {
-                        vars: vars,
-                    };
-                    var element = document.createElement('a');
-                    element.setAttribute('href', 'data:application/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(info, null, 2)));
-                    element.setAttribute('download', "myvote.json");
+                    let ready = false;
+                    HAR.triggerExport().then(harLog => {
+                        console.log("Ready");
+                        ready = true;
+                        var info = {
+                            vars: vars,
+                            har: harLog,
+                        };
+                        var element = document.createElement('a');
+                        element.setAttribute('href', 'data:application/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(info, null, 2)));
+                        element.setAttribute('download', "myvote.json");
 
-                    element.style.display = 'none';
-                    document.body.appendChild(element);
+                        element.style.display = 'none';
+                        document.body.appendChild(element);
 
-                    element.click();
+                        element.click();
 
-                    document.body.removeChild(element);
+                        document.body.removeChild(element);
+                    });
+                    alert("Секунду, мы готовим ваш голос к скачиванию. Посчитайте до трёх и закрывайте это окно");
                 }
 
                 download_info({
