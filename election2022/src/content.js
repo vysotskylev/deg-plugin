@@ -105,7 +105,7 @@ function onHarReceived(message) {
   };
   var element = document.createElement('a');
   element.setAttribute('href', 'data:application/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(info, null, 2)));
-  element.setAttribute('download', "myvote.json");
+  element.setAttribute('download', "myvote-har.json");
 
   element.style.display = 'none';
   document.body.appendChild(element);
